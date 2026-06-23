@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\Users\\eduardo.leite\\source\\repos\\ProjetoPessoal\\DomMoveis\\DomMoveis\\DomMoveis.csproj": {}
+    "C:\\Users\\eduardo.leite\\source\\repos\\ProjetoPessoal\\DomMoveis\\DomMoveis\\DomMoveis.csproj": {}
   },
   "projects": {
-    "c:\\Users\\eduardo.leite\\source\\repos\\ProjetoPessoal\\DomMoveis\\DomMoveis\\DomMoveis.csproj": {
+    "C:\\Users\\eduardo.leite\\source\\repos\\ProjetoPessoal\\DomMoveis\\DomMoveis\\DomMoveis.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\eduardo.leite\\source\\repos\\ProjetoPessoal\\DomMoveis\\DomMoveis\\DomMoveis.csproj",
+        "projectUniqueName": "C:\\Users\\eduardo.leite\\source\\repos\\ProjetoPessoal\\DomMoveis\\DomMoveis\\DomMoveis.csproj",
         "projectName": "DomMoveis",
-        "projectPath": "c:\\Users\\eduardo.leite\\source\\repos\\ProjetoPessoal\\DomMoveis\\DomMoveis\\DomMoveis.csproj",
+        "projectPath": "C:\\Users\\eduardo.leite\\source\\repos\\ProjetoPessoal\\DomMoveis\\DomMoveis\\DomMoveis.csproj",
         "packagesPath": "C:\\Users\\eduardo.leite\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\eduardo.leite\\source\\repos\\ProjetoPessoal\\DomMoveis\\DomMoveis\\obj\\",
+        "outputPath": "C:\\Users\\eduardo.leite\\source\\repos\\ProjetoPessoal\\DomMoveis\\DomMoveis\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

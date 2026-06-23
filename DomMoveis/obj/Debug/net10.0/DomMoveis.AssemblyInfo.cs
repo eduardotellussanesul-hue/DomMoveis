@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DomMoveis")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e180a38cc9592133fd06a6ae4cad2b89bad85c1b")]
 [assembly: System.Reflection.AssemblyProductAttribute("DomMoveis")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DomMoveis")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
