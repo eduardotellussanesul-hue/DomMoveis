@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const JWT_SECRET = process.env.JWT_SECRET || 'seu_jwt_secret_aqui';
+const JWT_SECRET = process.env.JWT_SECRET || '';
 
 // ============================================
 // 1. CRIAR USUÁRIO
@@ -806,6 +806,42 @@ export const countUsers = async (req: Request, res: Response) => {
         res.status(500).json({
             success: false,
             message: error.message || 'Erro ao contar usuários'
+        });
+    }
+};
+// ============================================
+// 18. BUSCAR USUÁRIO ATUAL (ME)
+// ============================================
+export const getMe = async (req: Request, res: Response) => {
+    try {
+        // O usuário já está no req.user (adicionado pelo middleware authenticate)
+        const userId = (req as any).user?.id;
+        
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: 'Usuário não autenticado'
+            });
+        }
+
+        const user = await User.findById(userId)
+            .select('-senha -refreshToken -refreshTokenExpiracao');
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'Usuário não encontrado'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: user
+        });
+    } catch (error: any) {
+        res.status(500).json({
+            success: false,
+            message: error.message || 'Erro ao buscar usuário'
         });
     }
 };

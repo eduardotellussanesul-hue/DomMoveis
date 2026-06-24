@@ -5,6 +5,7 @@ import { connectDB } from './config/database';
 import userRoutes from './routes/userRoutes';
 import categoryRoutes from './routes/categoryRoutes';
 import productRoutes from './routes/productRoutes';
+import imageRoutes from './routes/imageRoutes';
 import mongoose from 'mongoose';
 
 dotenv.config();
@@ -15,16 +16,17 @@ const PORT = process.env.PORT || 3000;
 // ============================================
 // 1. MIDDLEWARES
 // ============================================
-app.use(cors());                    // Permite requisições de outros domínios
-app.use(express.json());            // Interpreta JSON no body
-app.use(express.urlencoded({ extended: true })); // Interpreta dados de formulário
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // ============================================
 // 2. ROTAS DA API
 // ============================================
-app.use('/api', userRoutes);                    // Rotas de usuários (/api/users, /api/auth)
-app.use('/api/categories', categoryRoutes);     // Rotas de categorias (/api/categories)
-app.use('/api/products', productRoutes);        // Rotas de produtos (/api/products)
+app.use('/api', userRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/images', imageRoutes);  // ✅ CORRETO
 
 // ============================================
 // 3. ROTA DE HEALTH CHECK
@@ -52,14 +54,14 @@ app.get('/', (req, res) => {
             },
             categories: '/api/categories',
             products: '/api/products',
+            images: '/api/images',
             health: '/health'
-        },
-        documentation: 'https://github.com/seu-usuario/dommoveis-api'
+        }
     });
 });
 
 // ============================================
-// 5. ROTA 404 - PÁGINA NÃO ENCONTRADA
+// 5. ROTA 404
 // ============================================
 app.use((req, res) => {
     res.status(404).json({
@@ -75,7 +77,6 @@ app.use((req, res) => {
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
     console.error('❌ Erro:', err);
 
-    // Erro de validação do Mongoose
     if (err.name === 'ValidationError') {
         return res.status(400).json({
             success: false,
@@ -84,7 +85,6 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
         });
     }
 
-    // Erro de duplicidade (email, slug, etc)
     if (err.code === 11000) {
         const field = Object.keys(err.keyPattern)[0];
         return res.status(400).json({
@@ -97,18 +97,13 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
         });
     }
 
-    // Erro de rede do MongoDB
     if (err.name === 'MongoNetworkError') {
         return res.status(503).json({
             success: false,
-            message: 'Banco de dados indisponível',
-            details: {
-                error: 'Falha na conexão com o MongoDB'
-            }
+            message: 'Banco de dados indisponível'
         });
     }
 
-    // Erro genérico
     res.status(err.status || 500).json({
         success: false,
         message: err.message || 'Erro interno do servidor',
@@ -128,14 +123,24 @@ app.listen(PORT, async () => {
     console.log(`👤 Usuários: http://localhost:${PORT}/api/users`);
     console.log(`🏷️ Categorias: http://localhost:${PORT}/api/categories`);
     console.log(`📦 Produtos: http://localhost:${PORT}/api/products`);
+    console.log(`🖼️ Imagens: http://localhost:${PORT}/api/images`);
     console.log('=' .repeat(50));
-    
-    // Conectar ao MongoDB
+    console.log('📌 Rotas de Imagens:');
+    console.log('   POST   /api/images/upload              - Upload de uma imagem');
+    console.log('   POST   /api/images/upload-multiple     - Upload de múltiplas imagens');
+    console.log('   GET    /api/images/:publicId           - Buscar imagem por ID');
+    console.log('   GET    /api/images/list/:folder        - Listar imagens de uma pasta');
+    console.log('   GET    /api/images/tag/:tag            - Buscar imagens por tag');
+    console.log('   DELETE /api/images/:publicId           - Deletar imagem');
+    console.log('   POST   /api/images/delete-multiple     - Deletar múltiplas imagens');
+    console.log('   PUT    /api/images/:publicId           - Atualizar transformações');
+    console.log('=' .repeat(50));
+
     await connectDB();
 });
 
 // ============================================
-// 8. TRATAMENTO DE SINAIS DE ENCERRAMENTO
+// 8. TRATAMENTO DE SINAIS
 // ============================================
 process.on('SIGINT', async () => {
     console.log('\n🛑 Servidor encerrado (SIGINT)');

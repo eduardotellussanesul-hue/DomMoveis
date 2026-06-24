@@ -24,7 +24,7 @@ router.get('/slug/:slug', getCategoryBySlug);
 // ============================================
 // ROTAS PROTEGIDAS (precisa de token)
 // ============================================
-router.use(authenticate); // ⚠️ Todas as rotas abaixo exigem autenticação!
+router.use(authenticate); 
 
 // Rotas que exigem role ADMIN (3)
 router.post('/', authorize(RoleType.Administrador), createCategory);

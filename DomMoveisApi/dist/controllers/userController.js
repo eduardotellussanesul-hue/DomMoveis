@@ -3,13 +3,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.countUsers = exports.logout = exports.refreshToken = exports.login = exports.deleteUserPermanently = exports.reactivateUser = exports.deleteUser = exports.updateLastAccess = exports.updatePassword = exports.updateUserRole = exports.updateUser = exports.getUsersByStatus = exports.getUsersByRole = exports.getUserByEmail = exports.getUserById = exports.getAllUsers = exports.createUser = void 0;
+exports.getMe = exports.countUsers = exports.logout = exports.refreshToken = exports.login = exports.deleteUserPermanently = exports.reactivateUser = exports.deleteUser = exports.updateLastAccess = exports.updatePassword = exports.updateUserRole = exports.updateUser = exports.getUsersByStatus = exports.getUsersByRole = exports.getUserByEmail = exports.getUserById = exports.getAllUsers = exports.createUser = void 0;
 const User_1 = require("../models/User");
 const mongoose_1 = __importDefault(require("mongoose"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
-const JWT_SECRET = process.env.JWT_SECRET || 'seu_jwt_secret_aqui';
+const JWT_SECRET = process.env.JWT_SECRET || '';
 const createUser = async (req, res) => {
     try {
         const { nome, email, senha, telefone, role } = req.body;
@@ -451,15 +451,24 @@ const login = async (req, res) => {
         if (!email || !senha) {
             return res.status(400).json({
                 success: false,
-                message: 'Email e senha são obrigatórios'
+                message: 'Email e senha são obrigatórios',
+                details: {
+                    email: !email ? 'Email não fornecido' : 'Ok',
+                    senha: !senha ? 'Senha não fornecida' : 'Ok'
+                }
             });
         }
         const user = await User_1.User.findOne({ email: email.toLowerCase() })
-            .select('+senha +refreshToken +refreshTokenExpiracao');
+            .select('+senha');
         if (!user) {
             return res.status(401).json({
                 success: false,
-                message: 'Credenciais inválidas'
+                message: 'Credenciais inválidas',
+                details: {
+                    email: email.toLowerCase(),
+                    found: false,
+                    reason: 'Usuário não encontrado com este email'
+                }
             });
         }
         if (!user.ativo) {
@@ -472,7 +481,12 @@ const login = async (req, res) => {
         if (!isPasswordValid) {
             return res.status(401).json({
                 success: false,
-                message: 'Credenciais inválidas'
+                message: 'Credenciais inválidas',
+                details: {
+                    email: senha.toLowerCase(),
+                    found: false,
+                    reason: 'Usuário não encontrado com este email'
+                }
             });
         }
         await user.updateLastAccess();
@@ -644,6 +658,36 @@ const countUsers = async (req, res) => {
     }
 };
 exports.countUsers = countUsers;
+const getMe = async (req, res) => {
+    try {
+        const userId = req.user?.id;
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: 'Usuário não autenticado'
+            });
+        }
+        const user = await User_1.User.findById(userId)
+            .select('-senha -refreshToken -refreshTokenExpiracao');
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'Usuário não encontrado'
+            });
+        }
+        res.status(200).json({
+            success: true,
+            data: user
+        });
+    }
+    catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message || 'Erro ao buscar usuário'
+        });
+    }
+};
+exports.getMe = getMe;
 function getRoleName(role) {
     switch (role) {
         case User_1.RoleType.Usuario:

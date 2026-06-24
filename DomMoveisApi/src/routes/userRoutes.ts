@@ -16,7 +16,8 @@ import {
     login,
     refreshToken,
     logout,
-    countUsers
+    countUsers,
+    getMe
 } from '../controllers/userController';
 import { authenticate, authorize } from '../middlewares/authMiddleware';
 import { RoleType } from '../models/User';
@@ -36,6 +37,7 @@ router.post('/users', createUser);  // Cadastro aberto
 router.use(authenticate); // ⚠️ Todas as rotas abaixo exigem token!
 
 // Usuários (qualquer usuário logado)
+router.get('/users/me', getMe);  
 router.get('/users', getAllUsers);
 router.get('/users/:id', getUserById);
 router.get('/users/email/:email', getUserByEmail);

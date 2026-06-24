@@ -32,9 +32,13 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = exports.RoleType = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
 var RoleType;
 (function (RoleType) {
     RoleType[RoleType["Usuario"] = 0] = "Usuario";
@@ -42,6 +46,24 @@ var RoleType;
     RoleType[RoleType["Gerente"] = 2] = "Gerente";
     RoleType[RoleType["Administrador"] = 3] = "Administrador";
 })(RoleType || (exports.RoleType = RoleType = {}));
+function getRoleName(role) {
+    switch (role) {
+        case RoleType.Usuario: return 'Usuário';
+        case RoleType.Vendedor: return 'Vendedor';
+        case RoleType.Gerente: return 'Gerente';
+        case RoleType.Administrador: return 'Administrador';
+        default: return 'Usuário';
+    }
+}
+function getRoleIcon(role) {
+    switch (role) {
+        case RoleType.Usuario: return '👤';
+        case RoleType.Vendedor: return '🛒';
+        case RoleType.Gerente: return '📊';
+        case RoleType.Administrador: return '👑';
+        default: return '👤';
+    }
+}
 const UserSchema = new mongoose_1.Schema({
     nome: {
         type: String,
@@ -105,4 +127,42 @@ const UserSchema = new mongoose_1.Schema({
     toJSON: { virtuals: true },
     toObject: { virtuals: true }
 });
+UserSchema.pre('save', async function (next) {
+    if (!this.isModified('senha'))
+        return next();
+    try {
+        const salt = await bcryptjs_1.default.genSalt(10);
+        this.senha = await bcryptjs_1.default.hash(this.senha, salt);
+        next();
+    }
+    catch (error) {
+        next(error);
+    }
+});
+UserSchema.methods.comparePassword = async function (candidatePassword) {
+    return await bcryptjs_1.default.compare(candidatePassword, this.senha);
+};
+UserSchema.methods.updateLastAccess = async function () {
+    this.ultimoAcesso = new Date();
+    await this.save();
+};
+UserSchema.virtual('roleName').get(function () {
+    return getRoleName(this.role);
+});
+UserSchema.virtual('roleIcon').get(function () {
+    return getRoleIcon(this.role);
+});
+UserSchema.virtual('isAdmin').get(function () {
+    return this.role === RoleType.Administrador;
+});
+UserSchema.virtual('isManager').get(function () {
+    return this.role >= RoleType.Gerente;
+});
+UserSchema.virtual('isSeller').get(function () {
+    return this.role >= RoleType.Vendedor;
+});
+UserSchema.index({ email: 1 });
+UserSchema.index({ role: 1 });
+UserSchema.index({ ativo: 1 });
+UserSchema.index({ dataCriacao: -1 });
 exports.User = mongoose_1.default.model('User', UserSchema);

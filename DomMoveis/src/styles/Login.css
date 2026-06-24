@@ -1,0 +1,84 @@
+/* ============================================
+   LOGIN
+============================================ */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.login-card {
+    background: white;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    width: 100%;
+    max-width: 400px;
+}
+
+.login-card h1 {
+    text-align: center;
+    color: #4a5568;
+    font-size: 28px;
+    margin-bottom: 8px;
+}
+
+.login-card h2 {
+    text-align: center;
+    color: #718096;
+    font-size: 20px;
+    font-weight: 400;
+    margin-bottom: 30px;
+}
+
+/* ============================================
+   BOTÃO DE LOGIN (ESPECÍFICO)
+============================================ */
+.login-card .btn-login {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-top: 8px;
+}
+
+.login-card .btn-login:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.login-card .btn-login:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ============================================
+   INFO
+============================================ */
+.info {
+    text-align: center;
+    margin-top: 20px;
+    color: #a0aec0;
+    font-size: 14px;
+}
+
+/* ============================================
+   RESPONSIVE
+============================================ */
+@media (max-width: 480px) {
+    .login-card {
+        padding: 24px;
+    }
+    
+    .login-card h1 {
+        font-size: 24px;
+    }
+}

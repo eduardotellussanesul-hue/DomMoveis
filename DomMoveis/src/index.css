@@ -1,0 +1,26 @@
+/* ============================================
+   IMPORTAÇÃO DOS ESTILOS (PRIMEIRO!)
+============================================ */
+@import './styles/Common.css';
+@import './styles/Login.css';
+@import './styles/Dashboard.css';
+@import './styles/Users.css';
+@import './styles/Categories.css';
+@import './styles/Products.css';
+@import './styles/Catalog.css';
+@import './styles/ProductDetail.css';
+
+/* ============================================
+   ESTILOS GLOBAIS (DEPOIS DAS IMPORTAÇÕES)
+============================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+}

@@ -95,7 +95,7 @@ const ProductSchema = new Schema<IProduct>(
         },
         slug: {
             type: String,
-            required: true,
+            required: false,
             unique: true,
             lowercase: true,
             trim: true
