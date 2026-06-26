@@ -1,0 +1,332 @@
+/* ============================================
+   ESTILOS EXCLUSIVOS PARA A PÁGINA HOME
+   ============================================ */
+
+/* Container principal da Home */
+.home-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 50%, #f3e8ff 100%);
+  padding: 1rem;
+}
+
+/* Card central */
+.home-card {
+  text-align: center;
+  max-width: 64rem;
+  width: 100%;
+  animation: homeFadeIn 0.6s ease-out;
+}
+
+@keyframes homeFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Ícone grande */
+.home-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 5rem;
+  height: 5rem;
+  background: linear-gradient(to right, #3b82f6, #4f46e5);
+  border-radius: 1rem;
+  box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
+  margin-bottom: 1rem;
+}
+
+.home-icon span {
+  font-size: 2.5rem;
+}
+
+/* Título */
+.home-title {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: #1f2937;
+  letter-spacing: -0.025em;
+}
+
+@media (min-width: 640px) {
+  .home-title {
+    font-size: 3rem;
+  }
+}
+
+/* Subtítulo */
+.home-subtitle {
+  color: #4b5563;
+  font-size: 1.125rem;
+  margin-top: 0.5rem;
+  max-width: 42rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Saudação do usuário */
+.home-greeting {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(4px);
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  margin-top: 1rem;
+}
+
+.home-greeting-text {
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.home-greeting-name {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.home-greeting-role {
+  font-size: 0.75rem;
+  background: #dbeafe;
+  color: #1d4ed8;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+}
+
+/* Container dos botões (deslogado) */
+.home-actions {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: 20rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Botões */
+.home-btn-primary,
+.home-btn-secondary {
+  width: 100%;
+  display: block;
+  text-align: center;
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.home-btn-primary {
+  background: linear-gradient(to right, #3b82f6, #4f46e5);
+  color: #ffffff;
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+}
+
+.home-btn-primary:hover {
+  box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.5);
+  transform: scale(1.02);
+}
+
+.home-btn-secondary {
+  background: rgba(255, 255, 255, 0.8);
+  color: #374151;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.home-btn-secondary:hover {
+  background: #ffffff;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Grid de cards (logado) */
+.home-grid {
+  margin-top: 2rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .home-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .home-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.home-card-link {
+  background: #ffffff;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  border: 1px solid #f3f4f6;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s;
+  text-decoration: none;
+  color: inherit;
+}
+
+.home-card-link:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  border-color: #93c5fd;
+}
+
+.home-card-icon {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+  transition: background 0.2s;
+}
+
+.home-card-icon.blue {
+  background: #dbeafe;
+}
+.home-card-link:hover .home-card-icon.blue {
+  background: #bfdbfe;
+}
+
+.home-card-icon.green {
+  background: #d1fae5;
+}
+.home-card-link:hover .home-card-icon.green {
+  background: #a7f3d0;
+}
+
+.home-card-icon.purple {
+  background: #ede9fe;
+}
+.home-card-link:hover .home-card-icon.purple {
+  background: #ddd6fe;
+}
+
+.home-card-icon.orange {
+  background: #fef3c7;
+}
+.home-card-link:hover .home-card-icon.orange {
+  background: #fde68a;
+}
+
+.home-card-icon svg {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+.home-card-icon.blue svg {
+  color: #2563eb;
+}
+.home-card-icon.green svg {
+  color: #16a34a;
+}
+.home-card-icon.purple svg {
+  color: #7c3aed;
+}
+.home-card-icon.orange svg {
+  color: #ea580c;
+}
+
+.home-card-title {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.home-card-desc {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+/* Features (logado) */
+.home-features {
+  margin-top: 4rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .home-features {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.home-feature {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(4px);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.home-feature-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.75rem;
+}
+
+.home-feature-icon.blue {
+  background: #dbeafe;
+}
+.home-feature-icon.green {
+  background: #d1fae5;
+}
+.home-feature-icon.purple {
+  background: #ede9fe;
+}
+
+.home-feature-icon svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.home-feature-icon.blue svg {
+  color: #2563eb;
+}
+.home-feature-icon.green svg {
+  color: #16a34a;
+}
+.home-feature-icon.purple svg {
+  color: #7c3aed;
+}
+
+.home-feature-title {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.home-feature-desc {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}

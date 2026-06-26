@@ -11,7 +11,7 @@ import mongoose from 'mongoose';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = Number(process.env.PORT) || 3000;
 
 // ============================================
 // 1. MIDDLEWARES
@@ -114,7 +114,8 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 // ============================================
 // 7. INICIAR SERVIDOR
 // ============================================
-app.listen(PORT, async () => {
+
+app.listen(PORT,'0.0.0.0', async () => {
     console.log('=' .repeat(50));
     console.log('🚀 Servidor iniciado com sucesso!');
     console.log('=' .repeat(50));

@@ -1,0 +1,158 @@
+/* ============================================
+   ESTILOS DA NAVBAR
+   ============================================ */
+
+/* Container principal da navbar */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Conteúdo interno */
+.navbar-content {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Logo */
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  text-decoration: none;
+}
+
+.navbar-logo-icon {
+  font-size: 1.75rem;
+}
+
+.navbar-logo-text {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .navbar-logo-text {
+    display: inline;
+  }
+}
+
+/* Ações da direita */
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Botões de ação (ícones) */
+.navbar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  border: none;
+  background: transparent;
+  color: #4b5563;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.navbar-btn:hover {
+  background: #f3f4f6;
+}
+
+.navbar-btn svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* Separador */
+.navbar-divider {
+  width: 1px;
+  height: 1.5rem;
+  background: #e5e7eb;
+  margin: 0 0.25rem;
+}
+
+/* Nome do usuário */
+.navbar-username {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .navbar-username {
+    display: inline;
+  }
+}
+
+/* Botão de logout */
+.navbar-logout {
+  color: #ef4444;
+}
+
+.navbar-logout:hover {
+  background: #fef2f2;
+}
+
+/* Botões de login/registro (para desktop) */
+.navbar-auth-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.navbar-auth-btn.primary {
+  background: #2563eb;
+  color: white;
+}
+
+.navbar-auth-btn.primary:hover {
+  background: #1d4ed8;
+}
+
+.navbar-auth-btn.secondary {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.navbar-auth-btn.secondary:hover {
+  background: #e5e7eb;
+}
+
+.navbar-auth-btn svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Esconder texto em telas muito pequenas (opcional) */
+@media (max-width: 480px) {
+  .navbar-auth-btn span {
+    display: none;
+  }
+  .navbar-auth-btn {
+    padding: 0.5rem;
+  }
+}
