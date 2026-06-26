@@ -1,73 +1,95 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
+import { imageService } from '../../services/imageService';
+import { Upload, X, Image as ImageIcon } from 'lucide-react';
 
 interface ImageUploadProps {
   onImagesChange: (urls: string[]) => void;
   maxFiles?: number;
+  initialImages?: string[]; // Adiciona a prop
 }
 
-export const ImageUpload: React.FC<ImageUploadProps> = ({ onImagesChange, maxFiles = 5 }) => {
+export const ImageUpload: React.FC<ImageUploadProps> = ({
+  onImagesChange,
+  maxFiles = 5,
+  initialImages = [],
+}) => {
   const [previews, setPreviews] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Inicializa com as imagens existentes se for edição
+  useEffect(() => {
+    if (initialImages.length > 0 && previews.length === 0) {
+      setPreviews(initialImages);
+    }
+  }, [initialImages]);
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
-    const fileArray = Array.from(files).slice(0, maxFiles);
+    const fileArray = Array.from(files).slice(0, maxFiles - previews.length);
 
     // Gerar previews locais
-    const previewUrls = fileArray.map((file) => URL.createObjectURL(file));
-    setPreviews(previewUrls);
+    const localPreviewUrls = fileArray.map((file) => URL.createObjectURL(file));
+    setPreviews((prev) => [...prev, ...localPreviewUrls]);
 
-    // Fazer upload para o servidor
     setUploading(true);
     try {
-      const formData = new FormData();
-      fileArray.forEach((file) => {
-        formData.append('images', file);
-      });
-
-      const response = await fetch('http://localhost:3000/api/images/upload-multiple', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('@DomMoveis:token')}`,
-        },
-        body: formData,
-      });
-
-      const result = await response.json();
-      if (result.success) {
-        const urls = result.data.urls; // ajuste conforme sua resposta
-        onImagesChange(urls);
-      } else {
-        alert('Erro ao fazer upload das imagens');
-      }
+      const urls = await imageService.uploadMultiple(fileArray);
+      const allUrls = [...previews, ...urls];
+      setPreviews(allUrls);
+      onImagesChange(allUrls);
     } catch (error) {
       console.error('Upload error:', error);
-      alert('Erro ao fazer upload');
+      alert('Erro ao enviar imagens');
+      setPreviews((prev) => prev.slice(0, prev.length - fileArray.length));
     } finally {
       setUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
   const removeImage = (index: number) => {
     const newPreviews = previews.filter((_, i) => i !== index);
     setPreviews(newPreviews);
-    // Notificar o pai que a lista mudou (opcional)
+    onImagesChange(newPreviews);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
+      const dataTransfer = new DataTransfer();
+      files.forEach((file) => dataTransfer.items.add(file));
+      if (fileInputRef.current) {
+        fileInputRef.current.files = dataTransfer.files;
+        fileInputRef.current.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    }
+  };
+
+  const openFileSelector = () => {
+    if (!uploading && previews.length < maxFiles) {
+      fileInputRef.current?.click();
+    }
   };
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-4">
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          disabled={uploading}
-        >
-          {uploading ? 'Enviando...' : 'Selecionar Imagens'}
-        </button>
+    <div className="image-upload-container">
+      <div
+        className={`image-upload-dropzone ${isDragging ? 'dragging' : ''} ${
+          previews.length >= maxFiles ? 'full' : ''
+        }`}
+        onClick={openFileSelector}
+        onDrop={handleDrop}
+        onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+        onDragLeave={(e) => { e.preventDefault(); setIsDragging(false); }}
+      >
         <input
           type="file"
           ref={fileInputRef}
@@ -75,26 +97,52 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImagesChange, maxFil
           accept="image/*"
           multiple
           className="hidden"
+          disabled={uploading || previews.length >= maxFiles}
         />
-        <span className="text-sm text-gray-500">
-          Máximo {maxFiles} imagens
-        </span>
+        <div className="image-upload-content">
+          {uploading ? (
+            <div className="image-upload-loading">
+              <div className="spinner"></div>
+              <span>Enviando imagens...</span>
+            </div>
+          ) : previews.length >= maxFiles ? (
+            <div className="image-upload-full">
+              <ImageIcon className="w-8 h-8 text-gray-400" />
+              <span>Limite de {maxFiles} imagens</span>
+            </div>
+          ) : (
+            <>
+              <Upload className="w-10 h-10 text-blue-500" />
+              <span className="image-upload-text">Clique ou arraste imagens</span>
+              <span className="image-upload-hint">
+                PNG, JPG • Máximo {maxFiles} imagens
+              </span>
+            </>
+          )}
+        </div>
       </div>
 
       {previews.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-2">
+        <div className="image-preview-grid">
           {previews.map((url, index) => (
-            <div key={index} className="relative w-24 h-24 border rounded overflow-hidden">
-              <img src={url} alt={`Preview ${index}`} className="w-full h-full object-cover" />
+            <div key={index} className="image-preview-item">
+              <img src={url} alt={`Preview ${index}`} className="image-preview-img" />
               <button
                 type="button"
-                onClick={() => removeImage(index)}
-                className="absolute top-0 right-0 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                onClick={(e) => { e.stopPropagation(); removeImage(index); }}
+                className="image-preview-remove"
               >
-                ×
+                <X className="w-4 h-4" />
               </button>
+              <span className="image-preview-index">{index + 1}</span>
             </div>
           ))}
+          {previews.length < maxFiles && !uploading && (
+            <div className="image-preview-add" onClick={openFileSelector}>
+              <Upload className="w-6 h-6 text-gray-400" />
+              <span className="text-xs text-gray-400">Adicionar</span>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -28,7 +28,7 @@ const productSchema = z.object({
     profundidade: z.string().optional(),
     peso: z.string().optional(),
     unidadeMedida: z.enum(['cm', 'm', 'kg']).default('cm'),
-  }).optional().default({ unidadeMedida: 'cm' }),
+  }).default({ unidadeMedida: 'cm' }),
 
   destaque: z.boolean().default(false),
 });
@@ -38,7 +38,7 @@ type ProductFormData = z.infer<typeof productSchema>;
 interface ProductFormProps {
   onSuccess?: (data: any) => void;
   onCancel?: () => void;
-  initialData?: Partial<ProductFormData>;
+  initialData?: Partial<ProductFormData> & { imagens?: string[] };
   isEditing?: boolean;
   productId?: string;
 }
@@ -51,26 +51,65 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   productId,
 }) => {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [imageUrls, setImageUrls] = useState<string[]>(initialData?.imagens || []);
   const [uploading, setUploading] = useState(false);
+  const [loadingData, setLoadingData] = useState(false);
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
+    setValue,
   } = useForm<ProductFormData>({
     resolver: zodResolver(productSchema) as any,
-    defaultValues: initialData || {
+    defaultValues: {
       medidas: { unidadeMedida: 'cm' },
       estoque: '0',
       destaque: false,
+      ...(initialData || {}),
     },
   });
 
+  // Carregar categorias
   useEffect(() => {
-    categoryService.getAll().then(setCategories).catch(console.error);
+    categoryService.getAll()
+      .then(setCategories)
+      .catch(console.error);
   }, []);
+
+  // Carregar dados do produto se estiver editando e não tiver initialData
+  useEffect(() => {
+    if (isEditing && productId && !initialData) {
+      setLoadingData(true);
+      productService.getById(productId)
+        .then((product) => {
+          setValue('nome', product.nome);
+          setValue('descricao', product.descricao);
+          setValue('categoria', typeof product.categoria === 'string' ? product.categoria : product.categoria._id);
+          setValue('cor', product.cor);
+          setValue('preco', product.preco?.toString() || '');
+          setValue('precoPromocional', product.precoPromocional?.toString() || '');
+          setValue('estoque', product.estoque?.toString() || '0');
+          setValue('destaque', product.destaque || false);
+          if (product.medidas) {
+            setValue('medidas.altura', product.medidas.altura?.toString() || '');
+            setValue('medidas.largura', product.medidas.largura?.toString() || '');
+            setValue('medidas.profundidade', product.medidas.profundidade?.toString() || '');
+            setValue('medidas.peso', product.medidas.peso?.toString() || '');
+            setValue('medidas.unidadeMedida', product.medidas.unidadeMedida || 'cm');
+          }
+          if (product.imagens && product.imagens.length > 0) {
+            setImageUrls(product.imagens);
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+          alert('Erro ao carregar produto');
+        })
+        .finally(() => setLoadingData(false));
+    }
+  }, [isEditing, productId, initialData, setValue]);
 
   const onSubmit: SubmitHandler<ProductFormData> = async (data) => {
     if (imageUrls.length === 0) {
@@ -84,15 +123,13 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       const precoPromoNum = data.precoPromocional ? parseFloat(data.precoPromocional) : undefined;
       const estoqueNum = parseInt(data.estoque || '0', 10);
 
-      const medidasNum = data.medidas
-        ? {
-            altura: data.medidas.altura ? parseFloat(data.medidas.altura) : undefined,
-            largura: data.medidas.largura ? parseFloat(data.medidas.largura) : undefined,
-            profundidade: data.medidas.profundidade ? parseFloat(data.medidas.profundidade) : undefined,
-            peso: data.medidas.peso ? parseFloat(data.medidas.peso) : undefined,
-            unidadeMedida: data.medidas.unidadeMedida,
-          }
-        : undefined;
+      const medidasNum = {
+        altura: data.medidas.altura ? parseFloat(data.medidas.altura) : undefined,
+        largura: data.medidas.largura ? parseFloat(data.medidas.largura) : undefined,
+        profundidade: data.medidas.profundidade ? parseFloat(data.medidas.profundidade) : undefined,
+        peso: data.medidas.peso ? parseFloat(data.medidas.peso) : undefined,
+        unidadeMedida: data.medidas.unidadeMedida,
+      };
 
       const payload: CreateProductDTO = {
         nome: data.nome,
@@ -125,6 +162,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       setUploading(false);
     }
   };
+
+  if (loadingData) {
+    return <div className="text-center py-8">Carregando produto...</div>;
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="product-form">
@@ -271,7 +312,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       {/* Imagens */}
       <div className="product-form-field">
         <label className="product-form-label">Imagens *</label>
-        <ImageUpload onImagesChange={setImageUrls} maxFiles={5} />
+        <ImageUpload
+          onImagesChange={setImageUrls}
+          maxFiles={5}
+          initialImages={imageUrls}
+        />
         {imageUrls.length === 0 && (
           <p className="product-form-error">Selecione pelo menos uma imagem</p>
         )}
