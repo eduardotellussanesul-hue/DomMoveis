@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { Home, LogIn, UserPlus, LogOut, Grid, Package, PlusCircle } from 'lucide-react';
+import { LogIn, UserPlus, LogOut, Grid, Package, PlusCircle } from 'lucide-react';
 import '../../styles/NavBar.css'; // ← importando o CSS
 
 export const NavBar: React.FC = () => {

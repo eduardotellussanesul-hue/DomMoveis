@@ -316,3 +316,13 @@
   align-items: center;
   min-height: 60vh;
 }
+.product-card-btn.view {
+  background: #e0e7ff;
+  color: #4338ca;
+  border-color: #c7d2fe;
+}
+
+.product-card-btn.view:hover {
+  background: #c7d2fe;
+  transform: scale(1.03);
+}

@@ -9,15 +9,16 @@ export const imageService = {
       formData.append('images', file);
     });
 
-    const response = await apiClient.post<{ success: boolean; data: { urls: string[] } }>(
-      '/images/upload-multiple',
-      formData,
-      {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      }
-    );
+    // Tipagem correta: data é um array de objetos com url e publicId
+    const response = await apiClient.post<{
+      success: boolean;
+      data: { url: string; publicId: string }[];
+    }>('/images/upload-multiple', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
 
-    return response.data.data.urls;
+    // Extrai as URLs do array
+    return response.data.data.map((item) => item.url);
   },
 
   // Upload de uma única imagem

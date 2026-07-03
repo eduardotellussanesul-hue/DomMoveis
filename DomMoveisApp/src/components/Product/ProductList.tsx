@@ -8,6 +8,7 @@ interface ProductListProps {
   onEdit?: (id: string) => void;
   onReactivate?: (id: string) => void;
   onPermanentDelete?: (id: string) => void;
+  onView?: (id: string) => void;
   isAdmin?: boolean;
 }
 
@@ -17,6 +18,7 @@ export const ProductList: React.FC<ProductListProps> = ({
   onEdit,
   onReactivate,
   onPermanentDelete,
+  onView,
   isAdmin = false,
 }) => {
   if (products.length === 0) {
@@ -71,6 +73,15 @@ export const ProductList: React.FC<ProductListProps> = ({
             </div>
           </div>
           <div className="product-card-actions">
+            {onView && (
+              <button
+                onClick={() => onView(product._id)}
+                className="product-card-btn view"
+                title="Ver detalhes"
+              >
+                Visualizar
+              </button>
+            )}
             {onEdit && (
               <button
                 onClick={() => onEdit(product._id)}

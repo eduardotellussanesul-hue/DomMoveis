@@ -15,6 +15,10 @@ export const ProductsPage: React.FC = () => {
 
   const isAdmin = user?.role === 3;
 
+  const handleView = (id: string) => {
+    navigate(`/products/${id}`);
+  };
+
   const handleDelete = async (id: string) => {
     if (window.confirm('Tem certeza que deseja desativar este produto?')) {
       try {
@@ -94,6 +98,7 @@ export const ProductsPage: React.FC = () => {
           onDelete={handleDelete}
           onReactivate={handleReactivate}
           onPermanentDelete={isAdmin ? handlePermanentDelete : undefined}
+          onView={handleView}
           isAdmin={isAdmin}
         />
       )}

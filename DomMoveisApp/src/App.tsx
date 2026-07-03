@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
@@ -13,6 +12,7 @@ import { CreateCategoryPage } from './pages/CreateCategoryPage';
 import { EditCategoryPage } from './pages/EditCategoryPage'; 
 import { CreateProductPage } from './pages/CreateProductPage';
 import { EditProductPage } from './pages/EditProductPage';
+import { ProductDetailsPage } from './pages/ProductDetailsPage';
 
 function AppContent() {
   const { user } = useAuth();
@@ -56,6 +56,11 @@ function AppContent() {
         <Route path="/products/edit/:id" element={
           <ProtectedRoute>
             <EditProductPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/products/:id" element={
+          <ProtectedRoute>
+            <ProductDetailsPage />
           </ProtectedRoute>
         } />
       </Routes>

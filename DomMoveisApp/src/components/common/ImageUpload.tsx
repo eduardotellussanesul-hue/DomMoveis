@@ -1,71 +1,81 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { imageService } from '../../services/imageService';
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
 
 interface ImageUploadProps {
-  onImagesChange: (urls: string[]) => void;
+  onImagesChange: (urls: string[]) => void;      // URLs já upadas (edição)
+  onFilesChange?: (files: File[]) => void;       // arquivos selecionados para upload posterior
   maxFiles?: number;
-  initialImages?: string[]; // Adiciona a prop
+  initialImages?: string[];
 }
 
 export const ImageUpload: React.FC<ImageUploadProps> = ({
   onImagesChange,
+  onFilesChange,
   maxFiles = 5,
   initialImages = [],
 }) => {
   const [previews, setPreviews] = useState<string[]>([]);
-  const [uploading, setUploading] = useState(false);
+  const [files, setFiles] = useState<File[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Inicializa com as imagens existentes se for edição
+  // Inicializa com imagens existentes (edição)
   useEffect(() => {
     if (initialImages.length > 0 && previews.length === 0) {
       setPreviews(initialImages);
+      // Notifica o pai com as URLs iniciais
+      onImagesChange(initialImages);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialImages]);
 
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
+  // Função auxiliar para filtrar URLs reais (não blob:)
+  const getRealUrls = (urls: string[]) => urls.filter((url) => !url.startsWith('blob:'));
 
-    const fileArray = Array.from(files).slice(0, maxFiles - previews.length);
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = event.target.files;
+    if (!selectedFiles || selectedFiles.length === 0) return;
 
-    // Gerar previews locais
-    const localPreviewUrls = fileArray.map((file) => URL.createObjectURL(file));
-    setPreviews((prev) => [...prev, ...localPreviewUrls]);
+    const remaining = maxFiles - previews.length;
+    const newFiles = Array.from(selectedFiles).slice(0, remaining);
+    const newPreviews = newFiles.map((file) => URL.createObjectURL(file));
 
-    setUploading(true);
-    try {
-      const urls = await imageService.uploadMultiple(fileArray);
-      const allUrls = [...previews, ...urls];
-      setPreviews(allUrls);
-      onImagesChange(allUrls);
-    } catch (error) {
-      console.error('Upload error:', error);
-      alert('Erro ao enviar imagens');
-      setPreviews((prev) => prev.slice(0, prev.length - fileArray.length));
-    } finally {
-      setUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+    setFiles((prev) => [...prev, ...newFiles]);
+    setPreviews((prev) => [...prev, ...newPreviews]);
+
+    // Notifica o pai sobre os arquivos (para upload futuro)
+    if (onFilesChange) {
+      onFilesChange([...files, ...newFiles]);
+    }
+
+    // Limpa o input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
   const removeImage = (index: number) => {
     const newPreviews = previews.filter((_, i) => i !== index);
+    const newFiles = files.filter((_, i) => i !== index);
     setPreviews(newPreviews);
-    onImagesChange(newPreviews);
+    setFiles(newFiles);
+
+    // Notifica o pai com as URLs reais (filtra blob:)
+    const realUrls = getRealUrls(newPreviews);
+    onImagesChange(realUrls);
+
+    if (onFilesChange) {
+      onFilesChange(newFiles);
+    }
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    const files = Array.from(e.dataTransfer.files);
-    if (files.length > 0) {
+    const droppedFiles = Array.from(e.dataTransfer.files);
+    if (droppedFiles.length > 0) {
       const dataTransfer = new DataTransfer();
-      files.forEach((file) => dataTransfer.items.add(file));
+      droppedFiles.forEach((file) => dataTransfer.items.add(file));
       if (fileInputRef.current) {
         fileInputRef.current.files = dataTransfer.files;
         fileInputRef.current.dispatchEvent(new Event('change', { bubbles: true }));
@@ -74,7 +84,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
   };
 
   const openFileSelector = () => {
-    if (!uploading && previews.length < maxFiles) {
+    if (previews.length < maxFiles) {
       fileInputRef.current?.click();
     }
   };
@@ -96,16 +106,11 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
           onChange={handleFileChange}
           accept="image/*"
           multiple
-          className="hidden"
-          disabled={uploading || previews.length >= maxFiles}
+          style={{ display: 'none' }}
+          disabled={previews.length >= maxFiles}
         />
         <div className="image-upload-content">
-          {uploading ? (
-            <div className="image-upload-loading">
-              <div className="spinner"></div>
-              <span>Enviando imagens...</span>
-            </div>
-          ) : previews.length >= maxFiles ? (
+          {previews.length >= maxFiles ? (
             <div className="image-upload-full">
               <ImageIcon className="w-8 h-8 text-gray-400" />
               <span>Limite de {maxFiles} imagens</span>
@@ -137,7 +142,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
               <span className="image-preview-index">{index + 1}</span>
             </div>
           ))}
-          {previews.length < maxFiles && !uploading && (
+          {previews.length < maxFiles && (
             <div className="image-preview-add" onClick={openFileSelector}>
               <Upload className="w-6 h-6 text-gray-400" />
               <span className="text-xs text-gray-400">Adicionar</span>

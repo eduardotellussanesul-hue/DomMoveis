@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Grid, Package, PlusCircle, TrendingUp, Shield, Users } from 'lucide-react';
+import { Grid, Package, TrendingUp, Shield, Users } from 'lucide-react';
 
 export const Home: React.FC = () => {
   const { user } = useAuth();

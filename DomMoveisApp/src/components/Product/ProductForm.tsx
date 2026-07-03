@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { productService } from '../../services/productService';
 import { categoryService } from '../../services/categoryService';
+import { imageService } from '../../services/imageService';
 import type { Category } from '../../api/types/category';
 import type { CreateProductDTO } from '../../api/types/product';
 import { ImageUpload } from '../common/ImageUpload';
@@ -51,7 +52,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   productId,
 }) => {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [imageUrls, setImageUrls] = useState<string[]>(initialData?.imagens || []);
+  const [uploadedImageUrls, setUploadedImageUrls] = useState<string[]>(initialData?.imagens || []);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
 
@@ -100,25 +102,37 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             setValue('medidas.unidadeMedida', product.medidas.unidadeMedida || 'cm');
           }
           if (product.imagens && product.imagens.length > 0) {
-            setImageUrls(product.imagens);
+            setUploadedImageUrls(product.imagens);
           }
         })
         .catch((err) => {
-          console.error(err);
-          alert('Erro ao carregar produto');
+            console.error(err);
+            alert('Erro ao carregar produto');
+            onCancel?.();
         })
         .finally(() => setLoadingData(false));
     }
   }, [isEditing, productId, initialData, setValue]);
 
   const onSubmit: SubmitHandler<ProductFormData> = async (data) => {
-    if (imageUrls.length === 0) {
+    // Valida se há imagens (já upadas ou arquivos novos)
+    const totalImages = uploadedImageUrls.length + selectedFiles.length;
+    if (totalImages === 0) {
       alert('Selecione pelo menos uma imagem.');
       return;
     }
 
     setUploading(true);
     try {
+      let finalImageUrls = [...uploadedImageUrls];
+
+      // Se há arquivos novos, faz o upload agora
+      if (selectedFiles.length > 0) {
+        const uploadedUrls = await imageService.uploadMultiple(selectedFiles);
+        finalImageUrls = [...finalImageUrls, ...uploadedUrls];
+      }
+
+      // Monta o payload
       const precoNum = data.preco ? parseFloat(data.preco) : undefined;
       const precoPromoNum = data.precoPromocional ? parseFloat(data.precoPromocional) : undefined;
       const estoqueNum = parseInt(data.estoque || '0', 10);
@@ -140,7 +154,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         precoPromocional: precoPromoNum,
         estoque: estoqueNum,
         medidas: medidasNum,
-        imagens: imageUrls,
+        imagens: finalImageUrls,
         destaque: data.destaque,
       };
 
@@ -153,11 +167,14 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         alert('Produto criado com sucesso!');
       }
 
+      // Limpa os estados após sucesso (opcional)
+      setUploadedImageUrls([]);
+      setSelectedFiles([]);
       reset();
-      setImageUrls([]);
       onSuccess?.(result);
     } catch (error: any) {
       alert(error.response?.data?.message || 'Erro ao salvar produto');
+      // Não limpar os estados para permitir nova tentativa
     } finally {
       setUploading(false);
     }
@@ -313,11 +330,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       <div className="product-form-field">
         <label className="product-form-label">Imagens *</label>
         <ImageUpload
-          onImagesChange={setImageUrls}
+          onImagesChange={setUploadedImageUrls}
+          onFilesChange={setSelectedFiles}
           maxFiles={5}
-          initialImages={imageUrls}
+          initialImages={uploadedImageUrls}
         />
-        {imageUrls.length === 0 && (
+        {uploadedImageUrls.length === 0 && selectedFiles.length === 0 && (
           <p className="product-form-error">Selecione pelo menos uma imagem</p>
         )}
       </div>
@@ -344,7 +362,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         )}
         <button
           type="submit"
-          disabled={isSubmitting || uploading || imageUrls.length === 0}
+          disabled={isSubmitting || uploading || (uploadedImageUrls.length === 0 && selectedFiles.length === 0)}
           className="product-form-submit"
         >
           <Save className="w-4 h-4" />

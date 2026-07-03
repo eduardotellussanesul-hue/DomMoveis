@@ -6,9 +6,10 @@
 @import './styles/CategoryForm.css';
 @import './styles/Products.css';       
 @import './styles/ProductForm.css';    
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import './styles/ImageUpload.css';
+@import './styles/ProductDetail.css';
+
+@import "tailwindcss";
 
 @layer base {
   body {
