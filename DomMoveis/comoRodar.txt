@@ -1,0 +1,12 @@
+#Rodar Vite exposto em 0.0.0.0:5173
+cd /DomMoveis/DomMoveis
+npm install
+pm2 start "npm run dev -- --host 0.0.0.0 --port 5173" --name dommoveis-web
+pm2 save
+pm2 status
+pm2 logs dommoveis-web
+
+#Liberar porta 5173 no UFW
+ufw allow 5173/tcp
+ufw reload
+ufw status

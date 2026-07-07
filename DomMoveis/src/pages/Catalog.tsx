@@ -67,7 +67,6 @@ const Catalog: React.FC = () => {
                 search={search}
                 onSearchChange={setSearch}
             />
-
             {/* Resultados */}
             {error && <div className="error-message">❌ {error}</div>}
 
@@ -109,6 +108,13 @@ const Catalog: React.FC = () => {
                             </button>
                         </div>
                     )}
+
+                    {!loading && !error && (
+                        <p className="catalog-results-count">
+                            {totalProducts} produtos encontrados
+                        </p>
+                    )}
+
                 </>
             )}
         </div>
