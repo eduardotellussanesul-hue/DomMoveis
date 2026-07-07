@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://177.153.33.15:3000/api',
+    baseURL: 'https://dommoveis.store/api',
     headers: {
         'Content-Type': 'application/json'
     }

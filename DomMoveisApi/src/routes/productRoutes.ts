@@ -23,7 +23,6 @@ router.get('/slug/:slug', getProductBySlug);
 router.get('/category/:categoryId', getProductsByCategory);
 
 // Rotas protegidas (apenas admin)
-router.use(authenticate);
 router.post('/', authorize(RoleType.Administrador), createProduct);
 router.put('/:id', authorize(RoleType.Administrador), updateProduct);
 router.put('/:id/stock', authorize(RoleType.Administrador), updateStock);

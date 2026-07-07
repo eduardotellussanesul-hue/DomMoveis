@@ -23,9 +23,9 @@ app.use(express.urlencoded({ extended: true }));
 // ============================================
 // 2. ROTAS DA API
 // ============================================
-app.use('/api', userRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api', userRoutes);
 app.use('/api/images', imageRoutes);  // ✅ CORRETO
 
 // ============================================

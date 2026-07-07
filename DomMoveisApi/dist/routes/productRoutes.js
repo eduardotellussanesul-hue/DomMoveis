@@ -9,7 +9,6 @@ router.get('/', productController_1.getAllProducts);
 router.get('/:id', productController_1.getProductById);
 router.get('/slug/:slug', productController_1.getProductBySlug);
 router.get('/category/:categoryId', productController_1.getProductsByCategory);
-router.use(authMiddleware_1.authenticate);
 router.post('/', (0, authMiddleware_1.authorize)(User_1.RoleType.Administrador), productController_1.createProduct);
 router.put('/:id', (0, authMiddleware_1.authorize)(User_1.RoleType.Administrador), productController_1.updateProduct);
 router.put('/:id/stock', (0, authMiddleware_1.authorize)(User_1.RoleType.Administrador), productController_1.updateStock);
