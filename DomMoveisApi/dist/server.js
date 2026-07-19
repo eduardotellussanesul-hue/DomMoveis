@@ -10,16 +10,18 @@ const database_1 = require("./config/database");
 const userRoutes_1 = __importDefault(require("./routes/userRoutes"));
 const categoryRoutes_1 = __importDefault(require("./routes/categoryRoutes"));
 const productRoutes_1 = __importDefault(require("./routes/productRoutes"));
+const imageRoutes_1 = __importDefault(require("./routes/imageRoutes"));
 const mongoose_1 = __importDefault(require("mongoose"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
-const PORT = process.env.PORT || 3000;
+const PORT = Number(process.env.PORT) || 3000;
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
-app.use('/api', userRoutes_1.default);
 app.use('/api/categories', categoryRoutes_1.default);
 app.use('/api/products', productRoutes_1.default);
+app.use('/api/images', imageRoutes_1.default);
+app.use('/api', userRoutes_1.default);
 app.get('/health', (req, res) => {
     res.status(200).json({
         status: 'ok',
@@ -39,9 +41,9 @@ app.get('/', (req, res) => {
             },
             categories: '/api/categories',
             products: '/api/products',
+            images: '/api/images',
             health: '/health'
-        },
-        documentation: 'https://github.com/seu-usuario/dommoveis-api'
+        }
     });
 });
 app.use((req, res) => {
@@ -74,10 +76,7 @@ app.use((err, req, res, next) => {
     if (err.name === 'MongoNetworkError') {
         return res.status(503).json({
             success: false,
-            message: 'Banco de dados indisponível',
-            details: {
-                error: 'Falha na conexão com o MongoDB'
-            }
+            message: 'Banco de dados indisponível'
         });
     }
     res.status(err.status || 500).json({
@@ -86,7 +85,7 @@ app.use((err, req, res, next) => {
         ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
     });
 });
-app.listen(PORT, async () => {
+app.listen(PORT, '0.0.0.0', async () => {
     console.log('='.repeat(50));
     console.log('🚀 Servidor iniciado com sucesso!');
     console.log('='.repeat(50));
@@ -95,6 +94,17 @@ app.listen(PORT, async () => {
     console.log(`👤 Usuários: http://localhost:${PORT}/api/users`);
     console.log(`🏷️ Categorias: http://localhost:${PORT}/api/categories`);
     console.log(`📦 Produtos: http://localhost:${PORT}/api/products`);
+    console.log(`🖼️ Imagens: http://localhost:${PORT}/api/images`);
+    console.log('='.repeat(50));
+    console.log('📌 Rotas de Imagens:');
+    console.log('   POST   /api/images/upload              - Upload de uma imagem');
+    console.log('   POST   /api/images/upload-multiple     - Upload de múltiplas imagens');
+    console.log('   GET    /api/images/:publicId           - Buscar imagem por ID');
+    console.log('   GET    /api/images/list/:folder        - Listar imagens de uma pasta');
+    console.log('   GET    /api/images/tag/:tag            - Buscar imagens por tag');
+    console.log('   DELETE /api/images/:publicId           - Deletar imagem');
+    console.log('   POST   /api/images/delete-multiple     - Deletar múltiplas imagens');
+    console.log('   PUT    /api/images/:publicId           - Atualizar transformações');
     console.log('='.repeat(50));
     await (0, database_1.connectDB)();
 });

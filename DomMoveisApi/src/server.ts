@@ -23,10 +23,15 @@ app.use(express.urlencoded({ extended: true }));
 // ============================================
 // 2. ROTAS DA API
 // ============================================
-app.use('/api', userRoutes);
+// ⚠️ Ordem importa: os roteadores específicos precisam ser registrados
+// ANTES do userRoutes. O userRoutes é montado no prefixo amplo "/api" e
+// possui um `router.use(authenticate)` global; se registrado primeiro, ele
+// intercepta TODAS as requisições "/api/*" (inclusive as rotas públicas de
+// categorias/produtos) e retorna 401 "Token não fornecido".
 app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);
-app.use('/api/images', imageRoutes);  // ✅ CORRETO
+app.use('/api/images', imageRoutes);
+app.use('/api', userRoutes);
 
 // ============================================
 // 3. ROTA DE HEALTH CHECK
