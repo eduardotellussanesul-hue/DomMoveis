@@ -23,7 +23,6 @@ app.use(express.urlencoded({ extended: true }));
 // ============================================
 // 2. ROTAS DA API
 // ============================================
-<<<<<<< HEAD
 // ⚠️ Ordem importa: os roteadores específicos precisam ser registrados
 // ANTES do userRoutes. O userRoutes é montado no prefixo amplo "/api" e
 // possui um `router.use(authenticate)` global; se registrado primeiro, ele
@@ -33,12 +32,6 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/images', imageRoutes);
 app.use('/api', userRoutes);
-=======
-app.use('/api/categories', categoryRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api', userRoutes);
-app.use('/api/images', imageRoutes);  // ✅ CORRETO
->>>>>>> 7bf56c2b6dfd758de475f727563de0c9332847d5
 
 // ============================================
 // 3. ROTA DE HEALTH CHECK
