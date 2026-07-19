@@ -1,0 +1,71 @@
+Rodar a API em background (sem cair ao fechar terminal)
+cd /DomMoveis/DomMoveisApi
+npm install
+npm run build
+npm install -g pm2
+
+# opção simples: roda o script dev em background
+pm2 start "npm run dev" --name dommoveis-api
+
+# salvar para reiniciar automático após reboot
+pm2 save
+pm2 startup
+# copie e execute o comando que o pm2 mostrar
+pm2 save
+
+pm2 status
+pm2 logs dommoveis-api
+
+
+Confirmar que está escutando em 0.0.0.0:3000
+ss -ltnp | grep 3000
+
+
+Liberar a porta 3000 no Ubuntu (UFW)
+ufw status
+ufw allow 3000/tcp
+ufw reload
+ufw status
+
+curl http://177.153.33.15:3000/health
+
+------------------------------------------- Restart
+# ver processos
+pm2 status
+
+# reiniciar (quando alterou código)
+pm2 restart dommoveis-api
+
+# parar sem remover
+pm2 stop dommoveis-api
+
+# subir novamente (se estava parado)
+pm2 start dommoveis-api
+
+# derrubar e remover da lista
+pm2 delete dommoveis-api
+
+# ver logs em tempo real
+pm2 logs dommoveis-api
+
+#Se roda em dev com tsx watch:
+pm2 restart dommoveis-api
+
+#Se roda em produção compilada:
+cd /DomMoveis/DomMoveisApi
+npm run build
+pm2 restart dommoveis-api
+
+#Se o servidor reiniciar (VPS reboot)
+pm2 save
+pm2 resurrect
+
+#Fluxo recomendado para produção (mais estável)
+cd /DomMoveis/DomMoveisApi
+npm run build
+pm2 start dist/server.js --name dommoveis-api
+pm2 save
+
+#Aí sempre que alterar código:
+npm run build
+pm2 restart dommoveis-api

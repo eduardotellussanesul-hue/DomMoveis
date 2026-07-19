@@ -20,8 +20,13 @@ app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use('/api/categories', categoryRoutes_1.default);
 app.use('/api/products', productRoutes_1.default);
+<<<<<<< HEAD
 app.use('/api/images', imageRoutes_1.default);
 app.use('/api', userRoutes_1.default);
+=======
+app.use('/api', userRoutes_1.default);
+app.use('/api/images', imageRoutes_1.default);
+>>>>>>> 7bf56c2b6dfd758de475f727563de0c9332847d5
 app.get('/health', (req, res) => {
     res.status(200).json({
         status: 'ok',
