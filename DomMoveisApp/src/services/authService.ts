@@ -19,22 +19,10 @@ export const authService = {
     return { user, token: tokens.accessToken };
   },
 
-  async register(data: RegisterCredentials): Promise<AuthData> {
-    const response = await apiClient.post<{
-      success: boolean;
-      data: {
-        user: User;
-        tokens?: {
-          accessToken: string;
-          refreshToken: string;
-          expiresIn: number;
-        };
-      };
-    }>('/users', data);
-
-    const { user, tokens } = response.data.data;
-    // Se o registro não retornar token, use string vazia
-    return { user, token: tokens?.accessToken || '' };
+  async register(data: RegisterCredentials): Promise<User> {
+    // O endpoint /users cria a conta e retorna o usuário em `data` (sem tokens).
+    const response = await apiClient.post<{ success: boolean; data: User }>('/users', data);
+    return response.data.data;
   },
 
   async getProfile(): Promise<User> {

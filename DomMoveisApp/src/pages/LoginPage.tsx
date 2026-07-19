@@ -1,8 +1,11 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { LoginForm } from '../components/Auth/LoginForm';
 
 export const LoginPage: React.FC = () => {
+  const location = useLocation();
+  const successMessage = (location.state as { message?: string } | null)?.message;
+
   return (
     <div className="login-container">
       <div className="login-card">
@@ -13,6 +16,12 @@ export const LoginPage: React.FC = () => {
           <h1 className="login-title">Bem-vindo de volta</h1>
           <p className="login-subtitle">Entre com suas credenciais</p>
         </div>
+
+        {successMessage && (
+          <div className="login-success">
+            <span>✅</span> {successMessage}
+          </div>
+        )}
 
         <LoginForm />
 

@@ -9,15 +9,15 @@ export const imageService = {
       formData.append('images', file);
     });
 
-    const response = await apiClient.post<{ success: boolean; data: { urls: string[] } }>(
-      '/images/upload-multiple',
-      formData,
-      {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      }
-    );
+    // Não definir Content-Type manualmente: o navegador/axios precisa gerar
+    // o boundary do multipart/form-data automaticamente.
+    const response = await apiClient.post<{
+      success: boolean;
+      data: Array<{ url: string; publicId: string }>;
+    }>('/images/upload-multiple', formData);
 
-    return response.data.data.urls;
+    // A API retorna um array de objetos { url, publicId }
+    return response.data.data.map((item) => item.url);
   },
 
   // Upload de uma única imagem
@@ -27,10 +27,7 @@ export const imageService = {
 
     const response = await apiClient.post<{ success: boolean; data: { url: string } }>(
       '/images/upload',
-      formData,
-      {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      }
+      formData
     );
 
     return response.data.data.url;

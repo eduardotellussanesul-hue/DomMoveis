@@ -59,12 +59,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const register = async (nome: string, email: string, senha: string) => {
-    const { user, token } = await authService.register({ nome, email, senha });
-    localStorage.setItem('@DomMoveis:token', token);
-    localStorage.setItem('@DomMoveis:user', JSON.stringify(user));
-    setUser(user);
-    setToken(token);
-    apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    // O endpoint de cadastro (/users) cria a conta mas NÃO retorna token.
+    // Portanto, apenas criamos a conta aqui; o login é feito na tela de login.
+    await authService.register({ nome, email, senha });
   };
 
   const logout = () => {

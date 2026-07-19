@@ -18,7 +18,10 @@ export const RegisterForm: React.FC = () => {
     setLoading(true);
     try {
       await register(nome, email, senha);
-      navigate('/');
+      // Cadastro não autentica automaticamente: envia o usuário para o login.
+      navigate('/login', {
+        state: { message: 'Conta criada com sucesso! Faça login para continuar.' },
+      });
     } catch (err: any) {
       setError(err.response?.data?.message || 'Erro ao registrar');
     } finally {

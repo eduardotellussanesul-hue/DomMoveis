@@ -140,6 +140,19 @@
   border: 1px solid #fecaca;
 }
 
+.login-success {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #16a34a;
+  font-size: 0.875rem;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 1rem;
+  background: #f0fdf4;
+  border-radius: 0.5rem;
+  border: 1px solid #bbf7d0;
+}
+
 /* Botão */
 .login-btn {
   width: 100%;

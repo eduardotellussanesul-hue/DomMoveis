@@ -5,9 +5,11 @@ const config: CapacitorConfig = {
   appName: 'DomMoveisApp',
   webDir: 'dist',
   server: {
-    url: 'http://192.168.56.1:5173', // ← substitua pelo seu IP
-    cleartext: true
-  }
+    // App servido em http://localhost dentro do WebView, permitindo chamadas
+    // cleartext à API local (http://localhost:3000) via `adb reverse`.
+    androidScheme: 'http',
+    cleartext: true,
+  },
 };
 
 export default config;
