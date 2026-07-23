@@ -25,7 +25,6 @@ const isPublicRequest = (config: any): boolean => {
         if (normalizedUrl === '/categories') return true;
         if (/^\/categories\/[^/]+$/.test(normalizedUrl)) return true;
         if (/^\/categories\/slug\/[^/]+$/.test(normalizedUrl)) return true;
-        // GET imagens públicas
         if (/^\/images\/[^/]+$/.test(normalizedUrl)) return true;
         if (normalizedUrl.startsWith('/images/list/')) return true;
         if (normalizedUrl.startsWith('/images/tag/')) return true;
@@ -80,7 +79,6 @@ api.interceptors.response.use(
                 console.log('🔄 Tentando refresh para:', originalRequest.url);
                 const response = await api.post('/auth/refresh-token', { refreshToken });
 
-                // Extrai tokens (aceita diferentes estruturas)
                 const data = response.data.data || {};
                 const accessToken = data.accessToken || data.tokens?.accessToken;
                 const newRefreshToken = data.refreshToken || data.tokens?.refreshToken;
@@ -89,7 +87,6 @@ api.interceptors.response.use(
                     throw new Error('Access token não retornado');
                 }
 
-                // Log do token decodificado
                 try {
                     const decoded = JSON.parse(atob(accessToken.split('.')[1]));
                     console.log('🔓 Token decodificado:', decoded);
@@ -97,7 +94,6 @@ api.interceptors.response.use(
                     console.log('⚠️ Não foi possível decodificar o token');
                 }
 
-                // Salva tokens
                 localStorage.setItem('accessToken', accessToken);
                 if (newRefreshToken) {
                     localStorage.setItem('refreshToken', newRefreshToken);
@@ -106,21 +102,22 @@ api.interceptors.response.use(
                     console.log('ℹ️ Mantendo refreshToken atual');
                 }
 
-                // Atualiza header da requisição original
                 originalRequest.headers.Authorization = `Bearer ${accessToken}`;
                 console.log('🔄 Header atualizado para repetição:', originalRequest.headers.Authorization);
 
-                // 🔥 Repete a requisição usando axios (fora dos interceptors)
                 return axios(originalRequest);
             } catch (refreshError) {
                 console.error('❌ Refresh falhou:', refreshError);
                 localStorage.removeItem('accessToken');
                 localStorage.removeItem('refreshToken');
-                // Redirecionamento removido - apenas rejeita com mensagem
-                return Promise.reject({
-                    ...refreshError,
-                    message: 'Sessão expirada. Faça login novamente.'
-                });
+
+                // ✅ Cria um objeto de erro seguro para rejeitar
+                const err = new Error('Sessão expirada. Faça login novamente.');
+                // Copia propriedades úteis se existirem
+                if (refreshError && typeof refreshError === 'object') {
+                    Object.assign(err, refreshError);
+                }
+                return Promise.reject(err);
             }
         }
 
