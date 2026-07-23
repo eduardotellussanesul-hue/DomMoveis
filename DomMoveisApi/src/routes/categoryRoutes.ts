@@ -9,24 +9,17 @@ import {
     reactivateCategory,
     deleteCategoryPermanently
 } from '../controllers/categoryController';
-import { authenticate, authorize } from '../middlewares/authMiddleware';
+import { authorize } from '../middlewares/authMiddleware';
 import { RoleType } from '../models/User';
 
 const router = Router();
 
-// ============================================
-// ROTAS PÚBLICAS (não precisa de token)
-// ============================================
+// Rotas públicas
 router.get('/', getAllCategories);
 router.get('/:id', getCategoryById);
 router.get('/slug/:slug', getCategoryBySlug);
 
-// ============================================
-// ROTAS PROTEGIDAS (precisa de token)
-// ============================================
-router.use(authenticate); 
-
-// Rotas que exigem role ADMIN (3)
+// Rotas protegidas (admin)
 router.post('/', authorize(RoleType.Administrador), createCategory);
 router.put('/:id', authorize(RoleType.Administrador), updateCategory);
 router.delete('/:id', authorize(RoleType.Administrador), deleteCategory);

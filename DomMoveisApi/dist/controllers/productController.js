@@ -336,3 +336,4 @@ const updateStock = async (req, res) => {
     }
 };
 exports.updateStock = updateStock;
+//# sourceMappingURL=productController.js.map

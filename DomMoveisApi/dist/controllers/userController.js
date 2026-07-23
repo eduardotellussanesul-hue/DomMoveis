@@ -702,3 +702,4 @@ function getRoleName(role) {
             return 'Desconhecido';
     }
 }
+//# sourceMappingURL=userController.js.map

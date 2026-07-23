@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const database_1 = require("./config/database");
+const authRoutes_1 = __importDefault(require("./routes/authRoutes"));
 const userRoutes_1 = __importDefault(require("./routes/userRoutes"));
 const categoryRoutes_1 = __importDefault(require("./routes/categoryRoutes"));
 const productRoutes_1 = __importDefault(require("./routes/productRoutes"));
@@ -18,10 +19,11 @@ const PORT = Number(process.env.PORT) || 3000;
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
+app.use('/api/auth', authRoutes_1.default);
+app.use('/api/users', userRoutes_1.default);
 app.use('/api/categories', categoryRoutes_1.default);
 app.use('/api/products', productRoutes_1.default);
 app.use('/api/images', imageRoutes_1.default);
-app.use('/api', userRoutes_1.default);
 app.get('/health', (req, res) => {
     res.status(200).json({
         status: 'ok',
@@ -35,10 +37,8 @@ app.get('/', (req, res) => {
         message: '🚀 API E-commerce - DomMoveisDB',
         version: '1.0.0',
         endpoints: {
-            users: {
-                base: '/api/users',
-                auth: '/api/auth'
-            },
+            auth: '/api/auth',
+            users: '/api/users',
             categories: '/api/categories',
             products: '/api/products',
             images: '/api/images',
@@ -47,43 +47,15 @@ app.get('/', (req, res) => {
     });
 });
 app.use((req, res) => {
-    res.status(404).json({
-        success: false,
-        message: 'Rota não encontrada',
-        path: req.originalUrl
-    });
+    res.status(404).json({ success: false, message: 'Rota não encontrada', path: req.originalUrl });
 });
 app.use((err, req, res, next) => {
     console.error('❌ Erro:', err);
-    if (err.name === 'ValidationError') {
-        return res.status(400).json({
-            success: false,
-            message: 'Erro de validação',
-            details: Object.values(err.errors).map((e) => e.message)
-        });
-    }
-    if (err.code === 11000) {
-        const field = Object.keys(err.keyPattern)[0];
-        return res.status(400).json({
-            success: false,
-            message: `${field} já está em uso`,
-            details: {
-                field,
-                value: err.keyValue[field]
-            }
-        });
-    }
-    if (err.name === 'MongoNetworkError') {
-        return res.status(503).json({
-            success: false,
-            message: 'Banco de dados indisponível'
-        });
-    }
-    res.status(err.status || 500).json({
-        success: false,
-        message: err.message || 'Erro interno do servidor',
-        ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
-    });
+    res.status(err.status || 500).json({ success: false, message: err.message || 'Erro interno' });
+});
+app.listen(PORT, '0.0.0.0', async () => {
+    console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
+    await (0, database_1.connectDB)();
 });
 app.listen(PORT, '0.0.0.0', async () => {
     console.log('='.repeat(50));
@@ -119,3 +91,4 @@ process.on('SIGTERM', async () => {
     process.exit(0);
 });
 exports.default = app;
+//# sourceMappingURL=server.js.map

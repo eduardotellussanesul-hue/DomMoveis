@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { connectDB } from './config/database';
+import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
 import categoryRoutes from './routes/categoryRoutes';
 import productRoutes from './routes/productRoutes';
@@ -13,29 +14,20 @@ dotenv.config();
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 
-// ============================================
-// 1. MIDDLEWARES
-// ============================================
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ============================================
-// 2. ROTAS DA API
-// ============================================
-// ⚠️ Ordem importa: os roteadores específicos precisam ser registrados
-// ANTES do userRoutes. O userRoutes é montado no prefixo amplo "/api" e
-// possui um `router.use(authenticate)` global; se registrado primeiro, ele
-// intercepta TODAS as requisições "/api/*" (inclusive as rotas públicas de
-// categorias/produtos) e retorna 401 "Token não fornecido".
+// Rotas públicas (sem token)
+app.use('/api/auth', authRoutes);
+
+// Rotas protegidas (usam authorize internamente)
+app.use('/api/users', userRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/images', imageRoutes);
-app.use('/api', userRoutes);
 
-// ============================================
-// 3. ROTA DE HEALTH CHECK
-// ============================================
+// Health check, raiz, 404 e error handler...
 app.get('/health', (req, res) => {
     res.status(200).json({
         status: 'ok',
@@ -45,18 +37,13 @@ app.get('/health', (req, res) => {
     });
 });
 
-// ============================================
-// 4. ROTA RAIZ
-// ============================================
 app.get('/', (req, res) => {
     res.json({
         message: '🚀 API E-commerce - DomMoveisDB',
         version: '1.0.0',
         endpoints: {
-            users: {
-                base: '/api/users',
-                auth: '/api/auth'
-            },
+            auth: '/api/auth',
+            users: '/api/users',
             categories: '/api/categories',
             products: '/api/products',
             images: '/api/images',
@@ -65,62 +52,19 @@ app.get('/', (req, res) => {
     });
 });
 
-// ============================================
-// 5. ROTA 404
-// ============================================
 app.use((req, res) => {
-    res.status(404).json({
-        success: false,
-        message: 'Rota não encontrada',
-        path: req.originalUrl
-    });
+    res.status(404).json({ success: false, message: 'Rota não encontrada', path: req.originalUrl });
 });
 
-// ============================================
-// 6. MIDDLEWARE DE ERRO GLOBAL
-// ============================================
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
     console.error('❌ Erro:', err);
-
-    if (err.name === 'ValidationError') {
-        return res.status(400).json({
-            success: false,
-            message: 'Erro de validação',
-            details: Object.values(err.errors).map((e: any) => e.message)
-        });
-    }
-
-    if (err.code === 11000) {
-        const field = Object.keys(err.keyPattern)[0];
-        return res.status(400).json({
-            success: false,
-            message: `${field} já está em uso`,
-            details: {
-                field,
-                value: err.keyValue[field]
-            }
-        });
-    }
-
-    if (err.name === 'MongoNetworkError') {
-        return res.status(503).json({
-            success: false,
-            message: 'Banco de dados indisponível'
-        });
-    }
-
-    res.status(err.status || 500).json({
-        success: false,
-        message: err.message || 'Erro interno do servidor',
-        ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
-    });
+    res.status(err.status || 500).json({ success: false, message: err.message || 'Erro interno' });
 });
 
 // ============================================
-// 7. INICIAR SERVIDOR
+// ÚNICO LISTEN - INICIAR SERVIDOR
 // ============================================
-
-app.listen(PORT,'0.0.0.0', async () => {
+app.listen(PORT, '0.0.0.0', async () => {
     console.log('=' .repeat(50));
     console.log('🚀 Servidor iniciado com sucesso!');
     console.log('=' .repeat(50));
@@ -146,7 +90,7 @@ app.listen(PORT,'0.0.0.0', async () => {
 });
 
 // ============================================
-// 8. TRATAMENTO DE SINAIS
+// TRATAMENTO DE SINAIS
 // ============================================
 process.on('SIGINT', async () => {
     console.log('\n🛑 Servidor encerrado (SIGINT)');

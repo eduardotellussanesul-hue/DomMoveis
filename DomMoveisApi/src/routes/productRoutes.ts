@@ -11,18 +11,16 @@ import {
     deleteProductPermanently,
     updateStock
 } from '../controllers/productController';
-import { authenticate, authorize } from '../middlewares/authMiddleware';
+import { authorize } from '../middlewares/authMiddleware';
 import { RoleType } from '../models/User';
 
 const router = Router();
 
-// Rotas públicas (qualquer um pode ver)
 router.get('/', getAllProducts);
 router.get('/:id', getProductById);
 router.get('/slug/:slug', getProductBySlug);
 router.get('/category/:categoryId', getProductsByCategory);
 
-// Rotas protegidas (apenas admin)
 router.post('/', authorize(RoleType.Administrador), createProduct);
 router.put('/:id', authorize(RoleType.Administrador), updateProduct);
 router.put('/:id/stock', authorize(RoleType.Administrador), updateStock);

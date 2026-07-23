@@ -239,3 +239,4 @@ const deleteCategoryPermanently = async (req, res) => {
     }
 };
 exports.deleteCategoryPermanently = deleteCategoryPermanently;
+//# sourceMappingURL=categoryController.js.map

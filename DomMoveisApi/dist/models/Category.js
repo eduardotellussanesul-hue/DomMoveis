@@ -81,3 +81,4 @@ CategorySchema.pre('save', function (next) {
 CategorySchema.index({ slug: 1 });
 CategorySchema.index({ nome: 1 });
 exports.Category = mongoose_1.default.model('Category', CategorySchema);
+//# sourceMappingURL=Category.js.map

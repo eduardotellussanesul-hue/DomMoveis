@@ -159,3 +159,4 @@ ProductSchema.index({ preco: 1 });
 ProductSchema.index({ destaque: 1 });
 ProductSchema.index({ ativo: 1 });
 exports.Product = mongoose_1.default.model('Product', ProductSchema);
+//# sourceMappingURL=Product.js.map

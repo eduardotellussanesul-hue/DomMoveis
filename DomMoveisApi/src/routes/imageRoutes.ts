@@ -9,40 +9,22 @@ import {
     updateImage,
     getImagesByTag
 } from '../controllers/imageController';
-import { authenticate, authorize } from '../middlewares/authMiddleware';
+import { authorize } from '../middlewares/authMiddleware';
 import { upload, uploadMultiple } from '../middlewares/upload';
 import { RoleType } from '../models/User';
 
 const router = Router();
 
-// ============================================
-// ROTAS PÚBLICAS (sem autenticação)
-// ============================================
-// GET /api/images/:publicId
+// Rotas públicas
 router.get('/:publicId', getImage);
-// GET /api/images/list/:folder
 router.get('/list/:folder', listImages);
-// GET /api/images/tag/:tag
 router.get('/tag/:tag', getImagesByTag);
 
-// ============================================
-// ROTAS PROTEGIDAS (apenas ADMIN)
-// ============================================
-// Todas as rotas abaixo exigem autenticação e role ADMIN
-router.use(authenticate);
-router.use(authorize(RoleType.Administrador));
-
-// POST /api/images/upload
-router.post('/upload', upload.single('image'), uploadImage);
-// POST /api/images/upload-multiple
-router.post('/upload-multiple', uploadMultiple, uploadMultipleImages);
-
-// DELETE /api/images/:publicId
-router.delete('/:publicId', deleteImage);
-// POST /api/images/delete-multiple
-router.post('/delete-multiple', deleteMultipleImages);
-
-// PUT /api/images/:publicId
-router.put('/:publicId', updateImage);
+// Rotas protegidas (admin)
+router.post('/upload', authorize(RoleType.Administrador), upload.single('image'), uploadImage);
+router.post('/upload-multiple', authorize(RoleType.Administrador), uploadMultiple, uploadMultipleImages);
+router.delete('/:publicId', authorize(RoleType.Administrador), deleteImage);
+router.post('/delete-multiple', authorize(RoleType.Administrador), deleteMultipleImages);
+router.put('/:publicId', authorize(RoleType.Administrador), updateImage);
 
 export default router;

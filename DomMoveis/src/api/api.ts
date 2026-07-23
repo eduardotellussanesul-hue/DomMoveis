@@ -2,51 +2,128 @@ import axios from 'axios';
 
 const api = axios.create({
     baseURL: 'https://dommoveis.store/api',
-    headers: {
-        'Content-Type': 'application/json'
-    }
+    headers: { 'Content-Type': 'application/json' },
 });
 
-// Interceptor para adicionar token automaticamente
+// Função para determinar se a URL é pública (não precisa de token)
+const isPublicRequest = (config: any): boolean => {
+    const { url, method } = config;
+    if (!url) return false;
+
+    const normalizedUrl = url.replace(/^\/api/, '');
+    const methodUpper = method?.toUpperCase();
+
+    // Rotas de autenticação são sempre públicas
+    if (normalizedUrl.startsWith('/auth/')) return true;
+
+    // GET em produtos, categorias etc. são públicos (leitura)
+    if (methodUpper === 'GET') {
+        if (normalizedUrl === '/products') return true;
+        if (/^\/products\/[^/]+$/.test(normalizedUrl)) return true;
+        if (/^\/products\/slug\/[^/]+$/.test(normalizedUrl)) return true;
+        if (/^\/products\/category\/[^/]+$/.test(normalizedUrl)) return true;
+        if (normalizedUrl === '/categories') return true;
+        if (/^\/categories\/[^/]+$/.test(normalizedUrl)) return true;
+        if (/^\/categories\/slug\/[^/]+$/.test(normalizedUrl)) return true;
+        // GET imagens públicas
+        if (/^\/images\/[^/]+$/.test(normalizedUrl)) return true;
+        if (normalizedUrl.startsWith('/images/list/')) return true;
+        if (normalizedUrl.startsWith('/images/tag/')) return true;
+    }
+
+    return false;
+};
+
+// Interceptor de requisição: adiciona token se NÃO for pública
 api.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('accessToken');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
+        console.log('📤 Requisição:', config.method?.toUpperCase(), config.url);
+        if (!isPublicRequest(config)) {
+            const token = localStorage.getItem('accessToken');
+            if (token) {
+                config.headers.Authorization = `Bearer ${token}`;
+                console.log('✅ Token adicionado (primeiros 20):', token.substring(0, 20) + '...');
+            } else {
+                console.log('⚠️ Token não encontrado no localStorage');
+            }
+        } else {
+            console.log('🌐 Rota pública, token NÃO adicionado');
         }
         return config;
     },
     (error) => Promise.reject(error)
 );
 
-// Interceptor para refresh token
+// Interceptor de resposta: trata 401 e faz refresh
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
-        
-        if (error.response?.status === 401 && !originalRequest._retry) {
+
+        console.log('🔴 Erro na resposta:', error.response?.status, originalRequest.url);
+
+        // Se for pública ou já tentamos renovar, rejeita
+        if (isPublicRequest(originalRequest) || originalRequest._retry) {
+            console.log('🚫 Rota pública ou já tentou refresh, rejeitando');
+            return Promise.reject(error);
+        }
+
+        if (error.response?.status === 401) {
             originalRequest._retry = true;
-            
+
             try {
                 const refreshToken = localStorage.getItem('refreshToken');
-                if (refreshToken) {
-                    const response = await api.post('/auth/refresh-token', { refreshToken });
-                    const { accessToken, refreshToken: newRefreshToken } = response.data.data.tokens;
-                    
-                    localStorage.setItem('accessToken', accessToken);
-                    localStorage.setItem('refreshToken', newRefreshToken);
-                    
-                    originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-                    return api(originalRequest);
+                if (!refreshToken) {
+                    throw new Error('Sem refresh token');
                 }
+
+                console.log('🔄 Tentando refresh para:', originalRequest.url);
+                const response = await api.post('/auth/refresh-token', { refreshToken });
+
+                // Extrai tokens (aceita diferentes estruturas)
+                const data = response.data.data || {};
+                const accessToken = data.accessToken || data.tokens?.accessToken;
+                const newRefreshToken = data.refreshToken || data.tokens?.refreshToken;
+
+                if (!accessToken) {
+                    throw new Error('Access token não retornado');
+                }
+
+                // Log do token decodificado
+                try {
+                    const decoded = JSON.parse(atob(accessToken.split('.')[1]));
+                    console.log('🔓 Token decodificado:', decoded);
+                } catch (e) {
+                    console.log('⚠️ Não foi possível decodificar o token');
+                }
+
+                // Salva tokens
+                localStorage.setItem('accessToken', accessToken);
+                if (newRefreshToken) {
+                    localStorage.setItem('refreshToken', newRefreshToken);
+                    console.log('✅ Novo refreshToken salvo');
+                } else {
+                    console.log('ℹ️ Mantendo refreshToken atual');
+                }
+
+                // Atualiza header da requisição original
+                originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+                console.log('🔄 Header atualizado para repetição:', originalRequest.headers.Authorization);
+
+                // 🔥 Repete a requisição usando axios (fora dos interceptors)
+                return axios(originalRequest);
             } catch (refreshError) {
+                console.error('❌ Refresh falhou:', refreshError);
                 localStorage.removeItem('accessToken');
                 localStorage.removeItem('refreshToken');
-                window.location.href = '/login';
+                // Redirecionamento removido - apenas rejeita com mensagem
+                return Promise.reject({
+                    ...refreshError,
+                    message: 'Sessão expirada. Faça login novamente.'
+                });
             }
         }
-        
+
         return Promise.reject(error);
     }
 );

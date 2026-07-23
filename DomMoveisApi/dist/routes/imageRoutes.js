@@ -9,11 +9,10 @@ const router = (0, express_1.Router)();
 router.get('/:publicId', imageController_1.getImage);
 router.get('/list/:folder', imageController_1.listImages);
 router.get('/tag/:tag', imageController_1.getImagesByTag);
-router.use(authMiddleware_1.authenticate);
-router.use((0, authMiddleware_1.authorize)(User_1.RoleType.Administrador));
-router.post('/upload', upload_1.upload.single('image'), imageController_1.uploadImage);
-router.post('/upload-multiple', upload_1.uploadMultiple, imageController_1.uploadMultipleImages);
-router.delete('/:publicId', imageController_1.deleteImage);
-router.post('/delete-multiple', imageController_1.deleteMultipleImages);
-router.put('/:publicId', imageController_1.updateImage);
+router.post('/upload', (0, authMiddleware_1.authorize)(User_1.RoleType.Administrador), upload_1.upload.single('image'), imageController_1.uploadImage);
+router.post('/upload-multiple', (0, authMiddleware_1.authorize)(User_1.RoleType.Administrador), upload_1.uploadMultiple, imageController_1.uploadMultipleImages);
+router.delete('/:publicId', (0, authMiddleware_1.authorize)(User_1.RoleType.Administrador), imageController_1.deleteImage);
+router.post('/delete-multiple', (0, authMiddleware_1.authorize)(User_1.RoleType.Administrador), imageController_1.deleteMultipleImages);
+router.put('/:publicId', (0, authMiddleware_1.authorize)(User_1.RoleType.Administrador), imageController_1.updateImage);
 exports.default = router;
+//# sourceMappingURL=imageRoutes.js.map

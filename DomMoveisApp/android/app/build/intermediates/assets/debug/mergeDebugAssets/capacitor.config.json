@@ -1,9 +1,0 @@
-{
-	"appId": "com.dommoveis.app",
-	"appName": "DomMoveisApp",
-	"webDir": "dist",
-	"server": {
-		"androidScheme": "http",
-		"cleartext": true
-	}
-}

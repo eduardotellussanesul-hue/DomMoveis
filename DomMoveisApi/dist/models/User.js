@@ -166,3 +166,4 @@ UserSchema.index({ role: 1 });
 UserSchema.index({ ativo: 1 });
 UserSchema.index({ dataCriacao: -1 });
 exports.User = mongoose_1.default.model('User', UserSchema);
+//# sourceMappingURL=User.js.map

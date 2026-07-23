@@ -43,3 +43,4 @@ exports.uploadMultiple = (0, multer_1.default)({
         fileSize: 5 * 1024 * 1024
     }
 }).array('images', 10);
+//# sourceMappingURL=upload.js.map

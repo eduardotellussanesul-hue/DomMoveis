@@ -290,3 +290,4 @@ const getImagesByTag = async (req, res) => {
     }
 };
 exports.getImagesByTag = getImagesByTag;
+//# sourceMappingURL=imageController.js.map

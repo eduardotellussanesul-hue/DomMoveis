@@ -16,3 +16,4 @@ router.delete('/:id', (0, authMiddleware_1.authorize)(User_1.RoleType.Administra
 router.put('/:id/reactivate', (0, authMiddleware_1.authorize)(User_1.RoleType.Administrador), productController_1.reactivateProduct);
 router.delete('/:id/permanent', (0, authMiddleware_1.authorize)(User_1.RoleType.Administrador), productController_1.deleteProductPermanently);
 exports.default = router;
+//# sourceMappingURL=productRoutes.js.map
